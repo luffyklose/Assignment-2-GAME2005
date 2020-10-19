@@ -54,11 +54,11 @@ void StartScene::start()
 	m_pInstructionsLabel->setParent(this);
 	addChild(m_pInstructionsLabel);
 
-	m_pNameLabel1 = new Label("Zihan Xu 101288760", "Consolas", 40, blue, glm::vec2(200.0f, 150.0f));
+	m_pNameLabel1 = new Label("Zihan Xu 101288760", "Consolas", 40, blue, glm::vec2(400.0f, 150.0f));
 	m_pNameLabel1->setParent(this);
 	addChild(m_pNameLabel1);
 
-	m_pNameLabel2 = new Label("Fnu Yiliqi 101289355", "Consolas", 40, blue, glm::vec2(200.0f, 180.0f));
+	m_pNameLabel2 = new Label("Fnu Yiliqi 101289355", "Consolas", 40, blue, glm::vec2(400.0f, 180.0f));
 	m_pNameLabel2->setParent(this);
 	addChild(m_pNameLabel2);
 

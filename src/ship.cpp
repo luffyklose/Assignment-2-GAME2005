@@ -6,17 +6,17 @@
 
 Ship::Ship() : m_maxSpeed(10.0f)
 {
-	TextureManager::Instance()->load("../Assets/textures/ship3.png","ship");
+	TextureManager::Instance()->load("../Assets/textures/crate.png","crate");
 
-	auto size = TextureManager::Instance()->getTextureSize("ship");
-	setWidth(size.x);
-	setHeight(size.y);
+	auto size = TextureManager::Instance()->getTextureSize("crate");
+	setWidth(128);
+	setHeight(96);
 
 	getTransform()->position = glm::vec2(400.0f, 300.0f);
 	getRigidBody()->velocity = glm::vec2(0.0f, 0.0f);
 	getRigidBody()->acceleration = glm::vec2(0.0f, 0.0f);
 	getRigidBody()->isColliding = false;
-	setType(SHIP);
+	setType(CRATE);
 	
 	m_currentHeading = 0.0f; // current facing angle
 	m_currentDirection = glm::vec2(1.0f, 0.0f); // facing right
@@ -34,7 +34,7 @@ void Ship::draw()
 	const auto y = getTransform()->position.y;
 
 	// draw the ship
-	TextureManager::Instance()->draw("ship", x, y, m_currentHeading, 255, true);
+	TextureManager::Instance()->draw("crate", x, y, getWidth(), getHeight(),m_currentHeading, 255, true);
 }
 
 
@@ -158,6 +158,6 @@ void Ship::m_changeDirection()
 	const auto y = sin(m_currentHeading * Util::Deg2Rad);
 	m_currentDirection = glm::vec2(x, y);
 
-	glm::vec2 size = TextureManager::Instance()->getTextureSize("ship");
+	glm::vec2 size = TextureManager::Instance()->getTextureSize("crate");
 }
 

@@ -35,6 +35,10 @@ private:
 	Button* m_pBackButton;
 	Button* m_pNextButton;
 	Label* m_pInstructionsLabel;
+
+	static float m_lootWeight,
+		m_friCoefficient;
+	static float m_pRamp[2];
 };
 
 #endif /* defined (__PLAY_SCENE__) */

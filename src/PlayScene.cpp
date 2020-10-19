@@ -6,6 +6,11 @@
 #include "imgui.h"
 #include "imgui_sdl.h"
 #include "Renderer.h"
+#include "Util.h"
+
+float PlayScene::m_pRamp[2];
+float PlayScene::m_lootWeight;
+float PlayScene::m_friCoefficient;
 
 PlayScene::PlayScene()
 {
@@ -24,11 +29,14 @@ void PlayScene::draw()
 
 	drawDisplayList();
 	SDL_SetRenderDrawColor(Renderer::Instance()->getRenderer(), 255, 255, 255, 255);
+	Util::DrawLine(glm::vec2(100.0f, 550.0f), glm::vec2(100.0f, 550.0f - m_pRamp[1]), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+	Util::DrawLine(glm::vec2(100.0f, 550.0f), glm::vec2(100.0f + m_pRamp[0], 550.0f), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+	Util::DrawLine(glm::vec2(100.0f + m_pRamp[0], 550.0f), glm::vec2(100.0f, 550.0f - m_pRamp[1]), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
 }
 
 void PlayScene::update()
 {
-	updateDisplayList();
+	updateDisplayList();	
 }
 
 void PlayScene::clean()
@@ -41,7 +49,7 @@ void PlayScene::handleEvents()
 	EventManager::Instance().update();
 
 	// handle player movement with GameController
-	if (SDL_NumJoysticks() > 0)
+	/*if (SDL_NumJoysticks() > 0)
 	{
 		if (EventManager::Instance().getGameController(0) != nullptr)
 		{
@@ -68,11 +76,11 @@ void PlayScene::handleEvents()
 				}
 			}
 		}
-	}
+	}*/
 
 
 	// handle player movement if no Game Controllers found
-	if (SDL_NumJoysticks() < 1)
+	/*if (SDL_NumJoysticks() < 1)
 	{
 		if (EventManager::Instance().isKeyDown(SDL_SCANCODE_A))
 		{
@@ -95,7 +103,7 @@ void PlayScene::handleEvents()
 				m_pPlayer->setAnimationState(PLAYER_IDLE_LEFT);
 			}
 		}
-	}
+	}*/
 	
 
 	if (EventManager::Instance().isKeyDown(SDL_SCANCODE_ESCAPE))
@@ -118,62 +126,18 @@ void PlayScene::start()
 {
 	// Set GUI Title
 	m_guiTitle = "Play Scene";
-	
-	// Plane Sprite
-	m_pPlaneSprite = new Plane();
-	addChild(m_pPlaneSprite);
-
-	// Player Sprite
-	m_pPlayer = new Player();
-	addChild(m_pPlayer);
-	m_playerFacingRight = true;
-
-	// Back Button
-	m_pBackButton = new Button("../Assets/textures/backButton.png", "backButton", BACK_BUTTON);
-	m_pBackButton->getTransform()->position = glm::vec2(300.0f, 400.0f);
-	m_pBackButton->addEventListener(CLICK, [&]()-> void
-	{
-		m_pBackButton->setActive(false);
-		TheGame::Instance()->changeSceneState(START_SCENE);
-	});
-
-	m_pBackButton->addEventListener(MOUSE_OVER, [&]()->void
-	{
-		m_pBackButton->setAlpha(128);
-	});
-
-	m_pBackButton->addEventListener(MOUSE_OUT, [&]()->void
-	{
-		m_pBackButton->setAlpha(255);
-	});
-	addChild(m_pBackButton);
-
-	// Next Button
-	m_pNextButton = new Button("../Assets/textures/nextButton.png", "nextButton", NEXT_BUTTON);
-	m_pNextButton->getTransform()->position = glm::vec2(500.0f, 400.0f);
-	m_pNextButton->addEventListener(CLICK, [&]()-> void
-	{
-		m_pNextButton->setActive(false);
-		TheGame::Instance()->changeSceneState(END_SCENE);
-	});
-
-	m_pNextButton->addEventListener(MOUSE_OVER, [&]()->void
-	{
-		m_pNextButton->setAlpha(128);
-	});
-
-	m_pNextButton->addEventListener(MOUSE_OUT, [&]()->void
-	{
-		m_pNextButton->setAlpha(255);
-	});
-
-	addChild(m_pNextButton);
 
 	/* Instructions Label */
 	m_pInstructionsLabel = new Label("Press the backtick (`) character to toggle Debug View", "Consolas");
 	m_pInstructionsLabel->getTransform()->position = glm::vec2(Config::SCREEN_WIDTH * 0.5f, 500.0f);
 
 	addChild(m_pInstructionsLabel);
+
+	m_pRamp[0] = 150.0f;
+	m_pRamp[1] = 100.0f;
+	m_lootWeight = 10.0f;
+	m_friCoefficient = 0.5f;
+	
 }
 
 void PlayScene::GUI_Function() const
@@ -184,23 +148,33 @@ void PlayScene::GUI_Function() const
 	// See examples by uncommenting the following - also look at imgui_demo.cpp in the IMGUI filter
 	//ImGui::ShowDemoWindow();
 	
-	ImGui::Begin("Your Window Title Goes Here", NULL, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_MenuBar);
+	ImGui::Begin("Preference", NULL, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_MenuBar);
 
-	if(ImGui::Button("My Button"))
+	if(ImGui::Button("Start"))
 	{
 		std::cout << "My Button Pressed" << std::endl;
 	}
 
 	ImGui::Separator();
 
-	static float float3[3] = { 0.0f, 1.0f, 1.5f };
-	if(ImGui::SliderFloat3("My Slider", float3, 0.0f, 2.0f))
+	if(ImGui::SliderFloat2("Ramp size", m_pRamp, 1.0f, 600.0f))
 	{
-		std::cout << float3[0] << std::endl;
-		std::cout << float3[1] << std::endl;
-		std::cout << float3[2] << std::endl;
+		std::cout << m_pRamp[0] << std::endl;
+		std::cout << m_pRamp[1] << std::endl;
 		std::cout << "---------------------------\n";
 	}
+	
+	ImGui::Separator();
+	
+	if (ImGui::SliderFloat("Crate Mass", &m_lootWeight, 1.0f, 100.0f))
+	{
+		
+	}
+
+	if (ImGui::SliderFloat("Coefficient of Friction", &m_friCoefficient, 1.0f, 100.0f))
+	{
+
+	}	
 	
 	ImGui::End();
 
