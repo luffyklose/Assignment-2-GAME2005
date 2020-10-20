@@ -3,8 +3,7 @@
 #define __PLAY_SCENE__
 
 #include "Scene.h"
-#include "Plane.h"
-#include "Player.h"
+#include "Crate.h"
 #include "Button.h"
 #include "Label.h"
 
@@ -21,15 +20,14 @@ public:
 	virtual void handleEvents() override;
 	virtual void start() override;
 private:
+	static void SetData();
 	// IMGUI Function
 	void GUI_Function() const;
 	std::string m_guiTitle;
 	
 	glm::vec2 m_mousePosition;
 
-	Plane* m_pPlaneSprite;
-	Player* m_pPlayer;
-	bool m_playerFacingRight;
+	static Crate* m_pCrate;
 
 	// UI Items
 	Button* m_pBackButton;
@@ -39,6 +37,9 @@ private:
 	static float m_lootWeight,
 		m_friCoefficient;
 	static float m_pRamp[2];
+	static float m_rampSlope;
+
+	static bool m_isMoving;
 };
 
 #endif /* defined (__PLAY_SCENE__) */

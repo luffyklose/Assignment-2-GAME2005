@@ -1,16 +1,16 @@
-#include "ship.h"
+#include "Crate.h"
 #include "glm/gtx/string_cast.hpp"
 #include "PlayScene.h"
 #include "TextureManager.h"
 #include "Util.h"
 
-Ship::Ship() : m_maxSpeed(10.0f)
+Crate::Crate()
 {
 	TextureManager::Instance()->load("../Assets/textures/crate.png","crate");
 
 	auto size = TextureManager::Instance()->getTextureSize("crate");
-	setWidth(128);
-	setHeight(96);
+	setWidth(32);
+	setHeight(24);
 
 	getTransform()->position = glm::vec2(400.0f, 300.0f);
 	getRigidBody()->velocity = glm::vec2(0.0f, 0.0f);
@@ -20,14 +20,14 @@ Ship::Ship() : m_maxSpeed(10.0f)
 	
 	m_currentHeading = 0.0f; // current facing angle
 	m_currentDirection = glm::vec2(1.0f, 0.0f); // facing right
-	m_turnRate = 5.0f; // 5 degrees per frame
+	m_isMoving = false;
 }
 
 
-Ship::~Ship()
+Crate::~Crate()
 = default;
 
-void Ship::draw()
+void Crate::draw()
 {
 	// alias for x and y
 	const auto x = getTransform()->position.x;
@@ -37,88 +37,49 @@ void Ship::draw()
 	TextureManager::Instance()->draw("crate", x, y, getWidth(), getHeight(),m_currentHeading, 255, true);
 }
 
-
-void Ship::update()
+void Crate::update()
 {
-	move();
-	m_checkBounds();
-}
-
-void Ship::clean()
-{
-}
-
-void Ship::turnRight()
-{
-	m_currentHeading += m_turnRate;
-	if (m_currentHeading >= 360) 
+	if(m_isMoving)
 	{
-		m_currentHeading -= 360.0f;
-	}
-	m_changeDirection();
+		move();
+		//std::cout << "moving" << std::endl;
+	}		
 }
 
-void Ship::turnLeft()
+void Crate::clean()
 {
-	m_currentHeading -= m_turnRate;
-	if (m_currentHeading < 0)
-	{
-		m_currentHeading += 360.0f;
-	}
-
-	m_changeDirection();
 }
 
-void Ship::moveForward()
+void Crate::move()
 {
-	getRigidBody()->velocity = m_currentDirection * m_maxSpeed;
+	//std::cout << "acc:" << getRigidBody()->acceleration.x << " " << getRigidBody()->acceleration.y << std::endl;
+	getTransform()->position += glm::vec2(getRigidBody()->velocity.x/10, getRigidBody()->velocity.y/10);
+
+	getRigidBody()->velocity += glm::vec2(getRigidBody()->acceleration.x, getRigidBody()->acceleration.y);
+	//std::cout << "speed: " << getRigidBody()->velocity.x << " " << getRigidBody()->velocity.y << std::endl;
 }
 
-void Ship::moveBack()
+float Crate::getAngle()
 {
-	getRigidBody()->velocity = m_currentDirection * -m_maxSpeed;
+	return m_currentHeading;
 }
 
-void Ship::move()
+bool Crate::getIsMoving()
 {
-	getTransform()->position += getRigidBody()->velocity;
-	getRigidBody()->velocity *= 0.9f;
+	return m_isMoving;
 }
 
-glm::vec2 Ship::getTargetPosition() const
+void Crate::SetAngle(float angle)
 {
-	return m_targetPosition;
+	m_currentHeading = angle;
 }
 
-glm::vec2 Ship::getCurrentDirection() const
+void Crate::setIsMoving(bool isMoving)
 {
-	return m_currentDirection;
+	m_isMoving = isMoving;
 }
 
-float Ship::getMaxSpeed() const
-{
-	return m_maxSpeed;
-}
-
-void Ship::setTargetPosition(glm::vec2 newPosition)
-{
-	m_targetPosition = newPosition;
-
-}
-
-void Ship::setCurrentDirection(glm::vec2 newDirection)
-{
-	m_currentDirection = newDirection;
-}
-
-void Ship::setMaxSpeed(float newSpeed)
-{
-	m_maxSpeed = newSpeed;
-}
-
-
-
-void Ship::m_checkBounds()
+void Crate::m_checkBounds()
 {
 
 	if (getTransform()->position.x > Config::SCREEN_WIDTH)
@@ -143,21 +104,12 @@ void Ship::m_checkBounds()
 
 }
 
-void Ship::m_reset()
+void Crate::m_reset()
 {
 	getRigidBody()->isColliding = false;
 	const int halfWidth = getWidth() * 0.5f;
 	const auto xComponent = rand() % (640 - getWidth()) + halfWidth + 1;
 	const auto yComponent = -getHeight();
 	getTransform()->position = glm::vec2(xComponent, yComponent);
-}
-
-void Ship::m_changeDirection()
-{
-	const auto x = cos(m_currentHeading * Util::Deg2Rad);
-	const auto y = sin(m_currentHeading * Util::Deg2Rad);
-	m_currentDirection = glm::vec2(x, y);
-
-	glm::vec2 size = TextureManager::Instance()->getTextureSize("crate");
 }
 
