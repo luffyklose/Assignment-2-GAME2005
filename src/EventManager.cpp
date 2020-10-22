@@ -57,10 +57,10 @@ void EventManager::update()
             case SDL_KEYDOWN:
 	            onKeyDown();
 
-                if(event.key.keysym.sym == SDLK_BACKQUOTE)
+               /* if(event.key.keysym.sym == SDLK_BACKQUOTE)
                 {
                     m_isIMGUIActive = (m_isIMGUIActive) ? false : true;
-                }
+                }*/
                 {
                     int key = event.key.keysym.scancode;
                     IM_ASSERT(key >= 0 && key < IM_ARRAYSIZE(m_io.KeysDown));
@@ -289,7 +289,7 @@ bool EventManager::isIMGUIActive()
 }
 
 EventManager::EventManager():
-    m_isIMGUIActive(false), m_keyStates(nullptr), m_mouseWheel(0), m_isActive(true), m_io(ImGui::GetIO())
+    m_isIMGUIActive(true), m_keyStates(nullptr), m_mouseWheel(0), m_isActive(true), m_io(ImGui::GetIO())
 {
 	// initialize mouse position
     m_mousePosition = glm::vec2(0.0f, 0.0f);

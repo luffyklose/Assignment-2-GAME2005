@@ -53,10 +53,12 @@ void Crate::clean()
 void Crate::move()
 {
 	//std::cout << "acc:" << getRigidBody()->acceleration.x << " " << getRigidBody()->acceleration.y << std::endl;
+	
 	getTransform()->position += glm::vec2(getRigidBody()->velocity.x/10, getRigidBody()->velocity.y/10);
 
 	getRigidBody()->velocity += glm::vec2(getRigidBody()->acceleration.x, getRigidBody()->acceleration.y);
 	//std::cout << "speed: " << getRigidBody()->velocity.x << " " << getRigidBody()->velocity.y << std::endl;
+	//std::cout << "ratio: " << getRigidBody()->velocity.y / getRigidBody()->velocity.x << std::endl;
 }
 
 float Crate::getAngle()

@@ -27,6 +27,8 @@ PlayScene::~PlayScene()
 
 void PlayScene::draw()
 {
+	TextureManager::Instance()->draw("background", 400, 300,800,600,0,255,true);
+	
 	if(EventManager::Instance().isIMGUIActive())
 	{
 		GUI_Function();
@@ -82,19 +84,21 @@ void PlayScene::handleEvents()
 
 void PlayScene::start()
 {
+	//Set Background Image
+	TextureManager::Instance()->load("../Assets/textures/BG.png", "background");
+	
 	//Set Crate
 	m_pCrate = new Crate();
 	m_pCrate->getTransform()->position = glm::vec2(100.0f, 400.0f);
 	addChild(m_pCrate);
 	
 	// Set GUI Title
-	m_guiTitle = "Play Scene";
+	m_guiTitle = "Preference";
 
 	/* Instructions Label */
-	m_pInstructionsLabel = new Label("Press the backtick (`) character to toggle Debug View", "Consolas");
-	m_pInstructionsLabel->getTransform()->position = glm::vec2(Config::SCREEN_WIDTH * 0.5f, 500.0f);
-
-	addChild(m_pInstructionsLabel);
+	//m_pInstructionsLabel = new Label("Press the backtick (`) character to toggle Debug View", "Consolas");
+	//m_pInstructionsLabel->getTransform()->position = glm::vec2(Config::SCREEN_WIDTH * 0.5f, 500.0f);
+	//addChild(m_pInstructionsLabel);
 
 	m_pRamp[0] = 150.0f;
 	m_pRamp[1] = 100.0f;
@@ -119,6 +123,8 @@ void PlayScene::GUI_Function() const
 		m_isMoving = false;
 		m_pCrate->setIsMoving(false);
 		m_pCrate->getTransform()->position = glm::vec2(150.0f, 600.0f - m_pRamp[1]);
+		m_pCrate->getRigidBody()->velocity = glm::vec2(0.0f, 0.0f);
+		m_pCrate->getRigidBody()->acceleration = glm::vec2(0.0f, 0.0f);
 		//std::cout << "Crate at " << m_pCrate->getTransform()->position.x << "," << m_pCrate->getTransform()->position.y << std::endl;
 	}
 
@@ -126,7 +132,7 @@ void PlayScene::GUI_Function() const
 	{
 		if (ImGui::Button("Start"))
 		{
-			std::cout << "My Button Pressed" << std::endl;
+			//std::cout << "My Button Pressed" << std::endl;
 			m_isMoving = true;
 			m_pCrate->setIsMoving(true);
 			SetData();
@@ -153,7 +159,7 @@ void PlayScene::GUI_Function() const
 	if (ImGui::SliderFloat("Coefficient of Friction", &m_friCoefficient, 0.0f, 1.0f))
 	{
 
-	}	
+	}
 	
 	ImGui::End();
 
@@ -165,11 +171,17 @@ void PlayScene::GUI_Function() const
 
 void PlayScene::SetData()
 {
-	std::cout << "angle: " << m_rampSlope << std::endl;
-	std::cout << "xia: " << m_lootWeight * GRAVITY * glm::sin(glm::radians(m_rampSlope)) << " Fk: " << m_lootWeight * GRAVITY * glm::cos(glm::radians(m_rampSlope)) * m_friCoefficient << std::endl;
+	//std::cout << "angle: " << m_rampSlope << "tan: "<<glm::tan(glm::radians(m_rampSlope))<<std::endl;
+	//std::cout << "xia: " << m_lootWeight * GRAVITY * glm::sin(glm::radians(m_rampSlope)) << " Fk: " << m_lootWeight * GRAVITY * glm::cos(glm::radians(m_rampSlope)) * m_friCoefficient << std::endl;
 	float tempAcc = GRAVITY * glm::sin(glm::radians(m_rampSlope)) - GRAVITY * m_friCoefficient * glm::cos(glm::radians(m_rampSlope));
+	if(tempAcc<0)
+	{
+		tempAcc = 0;
+		std::cout << "The slider cannot move" << std::endl;
+	}
 	m_pCrate->getRigidBody()->acceleration = glm::vec2(tempAcc * glm::cos(glm::radians(m_rampSlope)), tempAcc * glm::sin(glm::radians(m_rampSlope)));	
-	std::cout << "acc: " << tempAcc << " x:" << m_pCrate->getRigidBody()->acceleration.x << " y: " << m_pCrate->getRigidBody()->acceleration.y << std::endl;
+	//std::cout << "acc: " << tempAcc << " x:" << m_pCrate->getRigidBody()->acceleration.x << " y: " << m_pCrate->getRigidBody()->acceleration.y << std::endl;
+	//std::cout << "ratio: " << m_pCrate->getRigidBody()->acceleration.y / m_pCrate->getRigidBody()->acceleration.x << std::endl;
 	/*m_pCrate->getRigidBody()->acceleration.y = (m_lootWeight * GRAVITY - m_lootWeight * GRAVITY * glm::cos(glm::radians(m_rampSlope)) * glm::sin(glm::radians(90.0f - m_rampSlope)) 
 		- m_lootWeight * GRAVITY * m_friCoefficient * glm::sin(glm::radians(m_rampSlope))) / m_lootWeight;
 	m_pCrate->getRigidBody()->acceleration.x = (m_lootWeight * GRAVITY * glm::cos(glm::radians(m_rampSlope)) * glm::cos(glm::radians(90.0f - m_rampSlope)) 
