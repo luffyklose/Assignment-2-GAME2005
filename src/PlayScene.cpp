@@ -44,14 +44,15 @@ void PlayScene::draw()
 void PlayScene::update()
 {
 	if (!m_isMoving)
+	{
 		m_pCrate->getTransform()->position = glm::vec2(150.0f, 580.0f - m_pRamp[1]);
+		m_rampSlope = glm::degrees(atan(m_pRamp[1] / m_pRamp[0]));
+		m_pCrate->SetAngle(m_rampSlope);
+		//std::cout << "w:h = " << m_pRamp[1] << "/" << m_pRamp[0] << std::endl;
+		//std::cout << "Crate Angle: " << m_rampSlope << std::endl;	
+	}		
 	
 	updateDisplayList();
-
-	m_rampSlope = glm::degrees(atan(m_pRamp[1]/m_pRamp[0]));
-	m_pCrate->SetAngle(m_rampSlope);
-	//std::cout << "w:h = " << m_pRamp[1] << "/" << m_pRamp[0] << std::endl;
-	//std::cout << "Crate Angle: " << m_rampSlope << std::endl;	
 
 	if (m_pCrate->getTransform()->position.y >= 580.0f)
 		m_pCrate->setIsMoving(false);
